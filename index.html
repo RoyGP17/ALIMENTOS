@@ -30,24 +30,19 @@
         .btn-danger {
             @apply bg-red-500 text-white hover:bg-red-600 shadow-md;
         }
-        /* Style for the label when its associated radio is checked */
-        input[type="radio"]:checked + label {
+        /* Style for the label when its associated radio/checkbox is checked */
+        input[type="radio"]:checked + label,
+        input[type="checkbox"]:checked + label {
             @apply ring-2 ring-blue-500 bg-blue-50;
         }
         /* Base style for the clickable label */
         .option-label {
             @apply p-4 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center;
         }
-        /* Adjust spacing for visible radio buttons */
-        .option-label input[type="radio"] {
-            margin-right: 0.75rem; /* Equivalent to mr-3 in Tailwind */
-        }
-        /* Style for multiple checkboxes within the same step */
-        input[type="checkbox"]:checked + label {
-            @apply ring-2 ring-blue-500 bg-blue-50;
-        }
+        /* Adjust spacing for visible radio/checkbox buttons */
+        .option-label input[type="radio"],
         .option-label input[type="checkbox"] {
-            margin-right: 0.75rem;
+            margin-right: 0.75rem; /* Equivalent to mr-3 in Tailwind */
         }
     </style>
 </head>
@@ -57,7 +52,7 @@
 
         <!-- Step Indicator -->
         <div class="mb-8 flex justify-center items-center">
-            <div id="step-indicator" class="text-xl font-medium text-blue-600">Paso 1 de 6</div>
+            <div id="step-indicator" class="text-xl font-medium text-blue-600">Paso 1 de 7</div>
         </div>
 
         <!-- Steps Container -->
@@ -65,7 +60,7 @@
             <!-- Step 1: CONDICIÓN DE IMPOSICIÓN -->
             <div id="step-1" class="step-content active">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">1. Condición de Imposición</h2>
-                <p class="text-lg text-gray-600 mb-6">¿Cuándo procede la imposición?</p>
+                <p class="text-lg text-gray-600 mb-6">¿Cuándo se procede?</p>
                 <div class="space-y-4">
                     <div>
                         <input type="radio" id="condicion-procede" name="condicion_imposicion" value="procede">
@@ -82,7 +77,7 @@
                 </div>
             </div>
 
-            <!-- Step 2: PRESUPUESTOS - Delito -->
+            <!-- Step 2: PRESUPUESTOS - Tipo de Delito -->
             <div id="step-2" class="step-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">2. Presupuestos: Tipo de Delito</h2>
                 <p class="text-lg text-gray-600 mb-6">¿Cuándo se interpone esta medida? (Seleccione una opción)</p>
@@ -126,7 +121,7 @@
                 </div>
             </div>
 
-            <!-- Step 2.5: PRESUPUESTOS - Condiciones Adicionales -->
+            <!-- Step 2.5 (Now logically Step 3): PRESUPUESTOS - Condiciones Adicionales -->
             <div id="step-2-5" class="step-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">2.5. Presupuestos: Condiciones del Afectado</h2>
                 <p class="text-lg text-gray-600 mb-6">¿Cuáles son las condiciones del afectado? (Seleccione una o más opciones)</p>
@@ -152,7 +147,7 @@
                 </div>
             </div>
 
-            <!-- Step 3: SUJETO LEGITIMADO -->
+            <!-- Step 3 (Now logically Step 4): SUJETO LEGITIMADO -->
             <div id="step-3" class="step-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">3. Sujeto Legitimado</h2>
                 <p class="text-lg text-gray-600 mb-6">¿Quién debe solicitarlo?</p>
@@ -178,7 +173,7 @@
                 </div>
             </div>
 
-            <!-- Step 4: SUJETO OBLIGADO -->
+            <!-- Step 4 (Now logically Step 5): SUJETO OBLIGADO -->
             <div id="step-4" class="step-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">4. Sujeto Obligado</h2>
                 <p class="text-lg text-gray-600 mb-6">¿Contra quién se incoa?</p>
@@ -204,7 +199,7 @@
                 </div>
             </div>
 
-            <!-- Step 5: BENEFICIARIO -->
+            <!-- Step 5 (Now logically Step 6): BENEFICIARIO -->
             <div id="step-5" class="step-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">5. Beneficiario</h2>
                 <p class="text-lg text-gray-600 mb-6">¿En favor de quién se ordena?</p>
@@ -230,7 +225,7 @@
                 </div>
             </div>
 
-            <!-- Step 6: ACREDITACIÓN -->
+            <!-- Step 6 (Now logically Step 7): ACREDITACIÓN -->
             <div id="step-6" class="step-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">6. Acreditación</h2>
                 <p class="text-lg text-gray-600 mb-6">¿Se presentaron los medios de prueba necesarios para aplicar esta medida cautelar?</p>
@@ -288,15 +283,16 @@
         </div>
     </div>
     <script>
-        // State variables for the application
-        let currentStep = 1;
-        // Adjusted total steps for the new structure (Presupuestos split into 2 steps)
-        const totalSteps = 7; // Condition of imposition, 2 for presupuestos, 3 for others
+        // Define the sequence of logical steps for navigation
+        const stepSequence = [1, 2, 2.5, 3, 4, 5, 6];
+        // Use an index to track the current position in the stepSequence array
+        let currentStepIndex = 0; 
 
+        // State variables for the application
         const answers = {
             condicion_imposicion: '',
             tipo_delito: '',
-            condiciones_afectado: [], // Now a checkbox group
+            condiciones_afectado: [], // Checkbox group
             sujeto_legitimado: '',
             sujeto_obligado: '',
             beneficiario: '',
@@ -311,37 +307,39 @@
         const resetBtn = document.getElementById('reset-btn');
         const finalResultDiv = document.getElementById('final-result');
         const answersSummaryUl = document.getElementById('answers-summary');
-        // Removed backgroundMusic variable as audio tag is removed
-        // const backgroundMusic = document.getElementById('background-music');
 
         /**
          * Displays the specified step and updates navigation buttons.
-         * @param {number|string} stepId - The ID of the step to display (e.g., 1, 2, 'conclusion').
+         * @param {number|string} stepIdentifier - The identifier of the step to display (e.g., 1, 2, 2.5, 'conclusion').
          */
-        function showStep(stepId) {
+        function showStep(stepIdentifier) {
             // Hide all step content
             document.querySelectorAll('.step-content').forEach(step => {
                 step.classList.remove('active');
             });
 
-            // Show the target step
-            const targetStep = document.getElementById(typeof stepId === 'number' ? (stepId === 2.5 ? 'step-2-5' : `step-${stepId}`) : stepId);
+            // Determine the actual HTML element ID based on the identifier
+            let targetElementId;
+            if (typeof stepIdentifier === 'number') {
+                targetElementId = stepIdentifier === 2.5 ? 'step-2-5' : `step-${stepIdentifier}`;
+            } else {
+                targetElementId = stepIdentifier; // For 'step-conclusion'
+            }
+            const targetStep = document.getElementById(targetElementId);
+
             if (targetStep) {
                 targetStep.classList.add('active');
             }
 
             // Update step indicator
-            let displayStepNumber = stepId;
-            if (stepId === 2.5) {
-                displayStepNumber = '2.5'; // For display purposes
-            }
-
-            if (typeof stepId === 'number') {
-                stepIndicator.textContent = `Paso ${displayStepNumber} de ${totalSteps}`;
-                prevBtn.style.display = (stepId === 1) ? 'none' : 'flex';
+            if (typeof stepIdentifier === 'number') {
+                // Calculate the display step number based on its index in the sequence
+                const displayStepNumber = stepSequence.indexOf(stepIdentifier) + 1;
+                stepIndicator.textContent = `Paso ${displayStepNumber} de ${stepSequence.length}`;
+                prevBtn.style.display = (currentStepIndex === 0) ? 'none' : 'flex';
                 nextBtn.style.display = 'flex';
                 resetBtn.style.display = 'none';
-            } else if (stepId === 'step-conclusion') {
+            } else if (stepIdentifier === 'step-conclusion') {
                 stepIndicator.textContent = 'Conclusión';
                 prevBtn.style.display = 'none';
                 nextBtn.style.display = 'none';
@@ -352,54 +350,52 @@
         }
 
         /**
-         * Moves to the next step.
+         * Moves to the next step in the sequence.
          */
         function nextStep() {
-            saveAnswers(currentStep);
+            // Save answers for the current step identifier
+            saveAnswers(stepSequence[currentStepIndex]);
 
-            // Handle the split of "Presupuestos" into two parts
-            if (currentStep === 2) {
-                currentStep = 2.5; // Go to the second part of Presupuestos
-            } else {
-                currentStep++;
-            }
+            // Increment the index to move to the next step
+            currentStepIndex++;
 
-            if (currentStep > totalSteps) {
+            // If we have passed the last step in the sequence, show the conclusion
+            if (currentStepIndex >= stepSequence.length) {
                 showStep('step-conclusion');
             } else {
-                showStep(currentStep);
+                // Otherwise, show the step corresponding to the new index
+                showStep(stepSequence[currentStepIndex]);
             }
         }
 
         /**
-         * Moves to the previous step.
+         * Moves to the previous step in the sequence.
          */
         function prevStep() {
-            if (currentStep === 2.5) {
-                currentStep = 2; // Go back to the first part of Presupuestos
-            } else {
-                currentStep--;
-            }
+            // Decrement the index to move to the previous step
+            currentStepIndex--;
 
-            if (currentStep < 1) {
-                currentStep = 1;
+            // Ensure the index does not go below the first step
+            if (currentStepIndex < 0) {
+                currentStepIndex = 0; // Stay on the first step
             }
-            showStep(currentStep);
+            // Show the step corresponding to the new index
+            showStep(stepSequence[currentStepIndex]);
         }
 
         /**
          * Saves the answers from the current step to the 'answers' object.
-         * @param {number} stepNum - The number of the step whose answers are to be saved.
+         * @param {number|string} stepIdentifier - The identifier of the step whose answers are to be saved.
          */
-        function saveAnswers(stepNum) {
-            switch (stepNum) {
+        function saveAnswers(stepIdentifier) {
+            switch (stepIdentifier) {
                 case 1:
                     answers.condicion_imposicion = document.querySelector('input[name="condicion_imposicion"]:checked')?.value || '';
                     break;
                 case 2:
                     answers.tipo_delito = document.querySelector('input[name="tipo_delito"]:checked')?.value || '';
                     break;
-                case 2.5: // For the new step 2.5
+                case 2.5: // Handle the 2.5 step specifically
                     answers.condiciones_afectado = Array.from(document.querySelectorAll('input[name="condiciones_afectado"]:checked'))
                         .map(cb => cb.value);
                     break;
@@ -447,6 +443,11 @@
                 canApplyMeasure = false;
                 reasons.push("Se requiere imposibilidad de subsistencia o incapacidad de trabajo.");
             }
+            if (answers.condiciones_afectado.includes('Otro') && !hasProceedingCondicion) {
+                canApplyMeasure = false; 
+                reasons.push("La condición 'Otro' no habilita la medida sin las condiciones específicas de subsistencia o incapacidad.");
+            }
+
 
             // 3. SUJETO LEGITIMADO
             const procedingLegitimados = ["Fiscal", "Actor civil"];
@@ -454,6 +455,11 @@
                 canApplyMeasure = false;
                 reasons.push(`El sujeto solicitante (${answers.sujeto_legitimado || 'no especificado'}) no está legitimado.`);
             }
+            if (answers.sujeto_legitimado === 'Otro') {
+                canApplyMeasure = false; 
+                reasons.push("El sujeto solicitante 'Otro' no está legitimado.");
+            }
+
 
             // 4. SUJETO OBLIGADO
             const procedingObligados = ["Imputado", "Tercero civil responsable"];
@@ -461,6 +467,11 @@
                 canApplyMeasure = false;
                 reasons.push(`El sujeto obligado (${answers.sujeto_obligado || 'no especificado'}) no procede para esta medida.`);
             }
+            if (answers.sujeto_obligado === 'Otro') {
+                canApplyMeasure = false; 
+                reasons.push("El sujeto obligado 'Otro' no procede para esta medida.");
+            }
+
 
             // 5. BENEFICIARIO
             const procedingBeneficiarios = ["Sujeto pasivo del Delito", "Familiares"];
@@ -468,6 +479,11 @@
                 canApplyMeasure = false;
                 reasons.push(`El beneficiario (${answers.beneficiario || 'no especificado'}) no procede para esta medida.`);
             }
+            if (answers.beneficiario === 'Cualquier otra persona') {
+                canApplyMeasure = false; 
+                reasons.push("El beneficiario 'Cualquier otra persona' no procede para esta medida.");
+            }
+
 
             // 6. ACREDITACIÓN
             if (answers.acreditacion !== 'si') {
@@ -502,16 +518,19 @@
             const appendAnswer = (label, value, options) => {
                 let displayValue = value;
                 if (Array.isArray(value)) {
+                    // For checkboxes, map values to their labels and remove (Procede)/(No procede) text
                     displayValue = value.length > 0 ? value.map(val => {
                         const option = options?.find(opt => opt.value === val);
                         return option ? option.label.replace(/ \(Procede\)|\(No procede\)/g, '') : val;
                     }).join(', ') : 'Ninguna seleccionada';
                 } else if (value && options) {
+                    // For radio buttons, map value to its label and remove (Procede)/(No procede) text
                     const option = options.find(opt => opt.value === value);
                     if (option) {
                         displayValue = option.label.replace(/ \(Procede\)|\(No procede\)/g, '');
                     }
                 }
+                // Only append if there's a displayable value
                 if (displayValue) {
                     const li = document.createElement('li');
                     li.innerHTML = `<span class="font-semibold">${label}:</span> ${displayValue}`;
@@ -520,69 +539,71 @@
             };
 
             // Define options for display (removing the "procede/no procede" from summary for cleaner output)
-            const yesNoOptions = [{value: 'si', label: 'Sí'}, {value: 'no', label: 'No'}];
+            // Note: The labels here reflect the text that will be displayed in the summary, cleaned.
+            const acreditacionOptions = [
+                {value: 'si', label: 'Sí'},
+                {value: 'no', label: 'No'}
+            ];
 
             appendAnswer('Condición de Imposición', answers.condicion_imposicion, [
-                {value: 'procede', label: 'Delito causa daños y perjuicios resarcibles (procede)'},
-                {value: 'no procede', label: 'Delito no causa daño y perjuicio resarcible (No procede)'}
+                {value: 'procede', label: 'Delito causa daños y perjuicios resarcibles'},
+                {value: 'no procede', label: 'Delito no causa daño y perjuicio resarcible'}
             ]);
             appendAnswer('Tipo de Delito', answers.tipo_delito, [
-                {value: 'HOMICIDIO', label: 'HOMICIDIO (Procede)'},
-                {value: 'LESIONES_GRAVES', label: 'LESIONES GRAVES (Procede)'},
-                {value: 'VIOLENCIA_FAMILIAR', label: 'VIOLENCIA FAMILIAR (Procede)'},
-                {value: 'OMISION_ASISTENCIA_FAMILIAR', label: 'OMISIÓN DE ASISTENCIA FAMILIAR (Procede)'},
-                {value: 'VIOLACION_LIBERTAD_SEXUAL', label: 'VIOLACIÓN DE LIBERTAD SEXUAL (Procede)'},
-                {value: 'Otro delito', label: 'Otro delito (No procede)'}
+                {value: 'HOMICIDIO', label: 'HOMICIDIO'},
+                {value: 'LESIONES_GRAVES', label: 'LESIONES GRAVES'},
+                {value: 'VIOLENCIA_FAMILIAR', label: 'VIOLENCIA FAMILIAR'},
+                {value: 'OMISION_ASISTENCIA_FAMILIAR', label: 'OMISIÓN DE ASISTENCIA FAMILIAR'},
+                {value: 'VIOLACION_LIBERTAD_SEXUAL', label: 'VIOLACIÓN DE LIBERTAD SEXUAL'},
+                {value: 'Otro delito', label: 'Otro delito'}
             ]);
             appendAnswer('Condiciones del Afectado', answers.condiciones_afectado, [
-                {value: 'IMPOSIBILIDAD_DE_SUBSISTENCIA', label: 'IMPOSIBILIDAD DE SUBSISTENCIA (procede)'},
-                {value: 'INCAPACIDAD_DE_TRABAJO', label: 'INCAPACIDAD DE TRABAJO (procede)'},
-                {value: 'Otro', label: 'Otro (No procede)'}
+                {value: 'IMPOSIBILIDAD_DE_SUBSISTENCIA', label: 'IMPOSIBILIDAD DE SUBSISTENCIA'},
+                {value: 'INCAPACIDAD_DE_TRABAJO', label: 'INCAPACIDAD DE TRABAJO'},
+                {value: 'Otro', label: 'Otro'}
             ]);
             appendAnswer('Sujeto Legitimado', answers.sujeto_legitimado, [
-                {value: 'Fiscal', label: 'Fiscal (procede)'},
-                {value: 'Actor civil', label: 'Actor civil (procede)'},
-                {value: 'Otro', label: 'Otro (no procede)'}
+                {value: 'Fiscal', label: 'Fiscal'},
+                {value: 'Actor civil', label: 'Actor civil'},
+                {value: 'Otro', label: 'Otro'}
             ]);
             appendAnswer('Sujeto Obligado', answers.sujeto_obligado, [
-                {value: 'Imputado', label: 'Imputado (procede)'},
-                {value: 'Tercero civil responsable', label: 'Tercero civil responsable (procede)'},
-                {value: 'Otro', label: 'Otro (no procede)'}
+                {value: 'Imputado', label: 'Imputado'},
+                {value: 'Tercero civil responsable', label: 'Tercero civil responsable'},
+                {value: 'Otro', label: 'Otro'}
             ]);
             appendAnswer('Beneficiario', answers.beneficiario, [
-                {value: 'Sujeto pasivo del Delito', label: 'Sujeto pasivo del Delito (Procede)'},
-                {value: 'Familiares', label: 'Familiares (procede)'},
-                {value: 'Cualquier otra persona', label: 'Cualquier otra persona (No procede)'}
+                {value: 'Sujeto pasivo del Delito', label: 'Sujeto pasivo del Delito'},
+                {value: 'Familiares', label: 'Familiares'},
+                {value: 'Cualquier otra persona', label: 'Cualquier otra persona'}
             ]);
-            appendAnswer('Acreditación', answers.acreditacion, [
-                {value: 'si', label: 'Sí (En efecto se acreditó su necesidad)'},
-                {value: 'no', label: 'No (Únicamente se alegó, pero no se presentó)'}
-            ]);
+            appendAnswer('Acreditación', answers.acreditacion, acreditacionOptions);
         }
 
-        // Event Listeners for navigation buttons
-        nextBtn.addEventListener('click', nextStep);
-        prevBtn.addEventListener('click', prevStep);
-        resetBtn.addEventListener('click', () => {
-            // Reset all answers
-            Object.keys(answers).forEach(key => {
-                if (Array.isArray(answers[key])) {
-                    answers[key] = [];
-                } else {
-                    answers[key] = '';
-                }
+        // Initial setup to display the first step and listen for interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            showStep(stepSequence[currentStepIndex]); // Show the first step
+            // Add event listeners for navigation buttons after the DOM is fully loaded
+            nextBtn.addEventListener('click', nextStep);
+            prevBtn.addEventListener('click', prevStep);
+            resetBtn.addEventListener('click', () => {
+                // Reset all answers
+                Object.keys(answers).forEach(key => {
+                    if (Array.isArray(answers[key])) {
+                        answers[key] = [];
+                    } else {
+                        answers[key] = '';
+                    }
+                });
+
+                // Clear radio/checkbox selections
+                document.querySelectorAll('input[type="radio"]:checked').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => checkbox.checked = false);
+
+                currentStepIndex = 0; // Reset to the first step in the sequence
+                showStep(stepSequence[currentStepIndex]);
             });
-
-            // Clear radio/checkbox selections
-            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => radio.checked = false);
-            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => checkbox.checked = false);
-
-            currentStep = 1;
-            showStep(currentStep);
         });
-
-        // Initial display
-        showStep(currentStep);
     </script>
 </body>
 </html>
